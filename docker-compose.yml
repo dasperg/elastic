@@ -1,0 +1,38 @@
+version: "3"
+services:
+
+#docker run -p 9200:9200 -p 9300:9300 -e "discovery.type=single-node" docker.elastic.co/elasticsearch/elasticsearch:7.5.2
+    elastic:
+        image: docker.elastic.co/elasticsearch/elasticsearch:7.5.2
+        ports:
+            - "9200:9200"
+            - "9300:9300"
+        container_name: "elastic"
+        networks:
+            - elasticnetwork
+        environment:
+            - discovery.type=single-node
+#        volumes:
+#            - ./elasticsearch_config/:/usr/share/elasticsearch/config/
+        
+#docker run -d --name kibana --net somenetwork -p 5601:5601 kibana:tag
+    kibana:
+        image: docker.elastic.co/kibana/kibana:7.5.2
+        ports:
+            - "5601:5601"
+        container_name: "kibana"
+        networks:
+          - elasticnetwork
+        links:
+            - elastic:elasticsearch
+#        volumes:
+#            - ./kibana_config/:/usr/share/kibana/config/
+        environment:
+#            SERVER_NAME: docker-cluster
+            SERVER_HOST: 0.0.0.0
+            ELASTICSEARCH_URL: http://elastic:9300
+            elasticsearch.ssl.verificationMode: none
+
+networks:
+  elasticnetwork:
+
